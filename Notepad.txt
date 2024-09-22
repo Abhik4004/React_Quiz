@@ -1,0 +1,3 @@
+Upload the highestScore.
+Select difficulty.
+Store all the answers.
