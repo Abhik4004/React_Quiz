@@ -7,6 +7,7 @@ import StartScreen from "./Components/StartScreen";
 import Question from "./Components/Question";
 import NextButton from "./Components/NextButton";
 import Progress from "./Components/Progress";
+import FinishedScreen from "./Components/FinishedScreen";
 
 let initialState = {
   question: [],
@@ -15,6 +16,7 @@ let initialState = {
   index: 0, //to track question index to update the question index
   answer: null,
   points: 0,
+  highscore: 0,
 };
 
 function reducer(state, action) {
@@ -48,16 +50,23 @@ function reducer(state, action) {
       };
     case "nextQuestion":
       return { ...state, index: state.index + 1, answer: null };
+    case "finish":
+      return {
+        ...state,
+        status: "finished",
+        highscore:
+          state.points > state.highscore ? state.points : state.highscore,
+      };
+    case "restart":
+      return { ...initialState, question: state.question, status: "ready" };
     default:
       throw new Error("Action unknown");
   }
 }
 
 export default function App() {
-  const [{ question, status, index, answer, points }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [{ question, status, index, answer, points, highscore }, dispatch] =
+    useReducer(reducer, initialState);
   const numQuestions = question.length;
   const maxPossiblePoints = question.reduce(
     (prev, cur) => prev + cur.points,
@@ -92,9 +101,22 @@ export default function App() {
               dispatch={dispatch}
               answer={answer}
             />
-
-            <NextButton dispatch={dispatch} amswer={answer} />
+            <NextButton
+              dispatch={dispatch}
+              amswer={answer}
+              index={index}
+              numQuestions={numQuestions}
+            />
           </>
+        )}
+
+        {status === "finished" && (
+          <FinishedScreen
+            points={points}
+            maxPossiblePoints={maxPossiblePoints}
+            highscore={highscore}
+            dispatch={dispatch}
+          />
         )}
       </Main>
     </div>
